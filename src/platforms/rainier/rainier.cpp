@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* Copyright IBM Corp. 2021 */
 
+#include "inventory.hpp"
 #include "platforms/rainier.hpp"
 
 void Rainier0z::enrollWith(PlatformManager& pm)
@@ -34,8 +35,9 @@ void Rainier1z::enrollWith(PlatformManager& pm)
 
 void Rainier1z::detectFrus(Notifier& notifier, Inventory* inventory)
 {
-    Nisqually1z nisqually(inventory);
-    Ingraham ingraham(inventory, &nisqually);
+    PublishWhenPresentInventoryDecorator decoratedInventory(inventory);
+    Nisqually1z nisqually(&decoratedInventory);
+    Ingraham ingraham(&decoratedInventory, &nisqually);
 
     /* Cold-plug devices */
     ingraham.plug(notifier);
