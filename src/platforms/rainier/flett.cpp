@@ -76,35 +76,15 @@ void FlettNVMeDrive::decorateWithI2CDevice(const std::string& path,
 {
     size_t bus = static_cast<size_t>(flett->getDriveBus(index).getAddress());
     size_t address = static_cast<size_t>(NVMeDrive::eepromAddress);
-
-    inventory::ObjectType updates = {
-        {
-            inventory::INVENTORY_DECORATOR_I2CDEVICE_IFACE,
-            {
-                {"Bus", bus},
-                {"Address", address},
-            },
-        },
-    };
-
-    inventory->updateObject(path, updates);
+    inventory->add(path, inventory::interfaces::I2CDevice(bus, address));
 }
 
 void FlettNVMeDrive::decorateWithVINI(const std::string& path,
                                       Inventory* inventory) const
 {
-    inventory::ObjectType updates = {
-        {
-            inventory::INVENTORY_IPZVPD_VINI_IFACE,
-            {
-                {"RT", std::vector<uint8_t>({'V', 'I', 'N', 'I'})},
-                {"CC", std::vector<uint8_t>({'N', 'V', 'M', 'e'})},
-                {"SN", this->getSerial()},
-            },
-        },
-    };
-
-    inventory->updateObject(path, updates);
+    inventory::interfaces::VINI vini(std::vector<uint8_t>({'N', 'V', 'M', 'e'}),
+            std::move(this->getSerial()));
+    inventory->add(path, vini);
 }
 
 /* Flett */
